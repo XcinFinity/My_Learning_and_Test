@@ -1,0 +1,7 @@
+T10Y3M	10-Year Treasury Constant Maturity Minus 3-Month Treasury Constant Maturity, Percent, Monthly, Not Seasonally Adjusted
+GDPC1		Real Gross Domestic Product, Billions of Chained 2012 Dollars, Quarterly, Seasonally Adjusted Annual Rate	
+INDPRO	Industrial Production: Total Index, Index 2017=100, Monthly, Seasonally Adjusted	
+CPIAUCSL	Consumer Price Index for All Urban Consumers: All Items in U.S. City Average, Index 1982-1984=100, Monthly, Seasonally Adjusted
+UNRATE	Unemployment Rate, Percent, Monthly, Seasonally Adjusted	
+
+	

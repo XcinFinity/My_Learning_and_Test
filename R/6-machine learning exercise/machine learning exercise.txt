@@ -1,0 +1,118 @@
+# Simulate y 
+
+set.seed(111)
+n <- 100
+p <- 10
+s <- 3
+beta <- c(rep(1,s), rep(0, p-s))
+X <- matrix(rnorm(n*p), ncol=p)
+e <- rnorm(n)
+y <- X%*%beta + e
+
+####################
+#Ridge Regression
+#####################
+
+library(glmnet)
+
+#Estimation
+ridge1 <- glmnet(X, y, alpha=0) #alpha: elastic net parameter
+#plot(ridge1)
+#lambda.grid <- seq(0,2, by=0.05)
+#ridge2 <- glmnet(X, y, lambda=lambda.grid, alpha=0)
+
+#Cross-validation
+cv.out <- cv.glmnet(X, y, alpha=0) 
+plot(cv_out)
+
+lam.star <- cv.out$lambda.min
+ridge.pred <- predict(ridge1, s= lam.star, newx=X)
+
+MSE.ridge.ins <- mean((y-ridge.pred)^2)
+
+#Out-of-Sample (size n/4)
+Xnew <- matrix(rnorm(n/4*p), ncol=p)
+enew <- rnorm(n/4)
+ynew <- Xnew%*%beta + enew
+
+ridge.pred.out <- predict(ridge1, s= lam.star, newx=Xnew)
+MSE.ridge.out <- mean((ynew-ridge.pred.out)^2)
+
+######################
+##Comparison with OLS
+#####################
+
+df <- data.frame(y=y,X=X)
+ols1 <- lm(y~X, data=df)
+MSE.ols.ins <- mean((y-predict(ols1))^2)
+
+#out-of-sample: OLS
+yhatnew <- cbind(1,Xnew)%*%coef(ols1)
+MSE.ols.out <- mean((ynew - yhatnew)^2)
+
+##########################
+# Compare Coefficients
+#########################
+
+Coefs <- cbind(coef(ols1), as.vector(predict(ridge1, s=lam.star, newx=X, type="coefficients")))
+colnames(Coefs)
+Coefs
+
+#################
+#Lasso
+###################
+
+#Estimation
+lasso1 <- glmnet(X, y, alpha=1)
+#plot(lasso1)
+# lambda.grid <- seq(0,2, by=0.05)
+# ridge2 <- glmnet(X, y, lambda=lambda.grid, alpha=1)
+
+#Cross-validation
+cv.lasso.out <- cv.glmnet(X, y, alpha=1)
+plot(cv.lasso.out)
+lam.star <- cv.lasso.out$lambda.min
+lasso.pred <- predict(lasso1, s= lam.star, newx=X)
+MSE.lasso.ins <- mean((y-lasso.pred)^2)
+
+#Out-of-sample
+lasso.pred.out <- predict(lasso1, s= lam.star, newx=Xnew)
+MSE.lasso.out <- mean((ynew-lasso.pred.out)^2)
+
+library(hdm)
+lasso2 <- rlasso(y~X)
+lasso2.pred.ins <- predict(lasso2)
+MSE.lasso2.ins <- mean((y-lasso2.pred.ins)^2)
+lasso2.pred.out <- predict(lasso2, newdata=Xnew)
+MSE.lasso2.out <- mean((ynew-lasso2.pred.out)^2)
+
+
+########################
+#Splines
+#######################
+library(splines)
+x0<-X[,1]
+spline1<- lm(y~bs(x0)+X)
+
+#################################
+#Principal Component Analysis
+###################################
+
+library(h2o)
+
+h2o.no_progress()  # turn off progress bars for brevity
+h2o.init(max_mem_size = "5g")
+
+y.h2o <- as.h2o(y)
+
+# run PCA
+y_pca <- h2o.prcomp(
+  training_frame = y.h2o,
+  pca_method = "GramSVD",
+  k = ncol(y.h2o), 
+  transform = "STANDARDIZE", 
+  impute_missing = TRUE,
+  max_runtime_secs = 1000
+)
+
+y_pca

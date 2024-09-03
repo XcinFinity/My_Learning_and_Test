@@ -1,0 +1,84 @@
+
+
+portdata<- read.csv()
+
+
+#Data cleaning
+
+portdata$date<-as.Date(portdata$date, format = "%d%B%y")
+
+
+#Summary statistics
+
+summary(portdata)
+dim(portdata)
+
+#########################################################################
+#Q1: Please generate mean and variance of the 'SELL' and 'BUY'. 
+#Also, make a histogram of these two variables. 
+########################################################################
+
+mean(portdata$SELL)
+var(portdata$SELL)
+
+hist(portdata$SELL)
+
+
+
+##################################################################################
+#Q2: calculate the corrlation matrix of 'SELL', 'PORT2', 'PORT3', 'PORT4' and 'BUY'.
+#Which variable is mostly correlated with 'SELL'? 
+#####################################################################################
+
+cor(portdata[,3:7])
+
+
+
+######################################################################
+#Q3: Generate a variable, 'buysell', which equals to Buy minus Sell. 
+#Take a random sample of size 15 from 'Buysell'. Calculate the mean.
+#Repeat the process for 50 times, and plot the distribution of sample mean.
+#What happens if you increase the sample size to 50?
+#####################################################################
+
+buysell<-portdata$BUY-portdata$SELL
+
+portsample<- sample(buysell, 15)
+mean(portsample)
+
+portret<-rep(0,50)
+
+for (i in 1:50){
+  tempsample<- sample(buysell, 15)
+  portret[i]<- mean(tempsample)
+}
+
+hist(portret)
+
+
+#################################################################
+#Q4: Conduct a t-test to determine if the 'buysell' is different from 0. 
+#Calculate a 95% confidence interval for the mean 'buysell'. Interpret your results.
+##########################################################################
+
+t.test(buysell)
+
+t<-sqrt(length(buysell))*mean(buysell)/sd(buysell)
+
+upperbound<-mean(buysell)+1.96*sd(buysell)/sqrt(length(buysell))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
